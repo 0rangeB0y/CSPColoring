@@ -1,8 +1,8 @@
 public class Result {
-    String map; // "Australia" or "America"
-    String algorithm; // "DFS", "DFS + FC", "DFS + FC + Singleton"
+    String map; // Australia or America
+    String algorithm; // DFS, DFS + FC, DFS + FC + Singleton
     boolean heuristicsUsed; // true if heuristics were used
-    int runNumber; // Run number (1 to 5)
+    int runNumber; // Run number
     long duration; // Duration in milliseconds
     int backtracks; // Number of backtracks
 

@@ -1,4 +1,11 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -6,7 +13,7 @@ public class GraphHeuristics {
     int [][] vertices;
     String[] colors;
     String[] states;
-    int noOfBacktracks;
+    int numOfBacktracks;
 
     public GraphHeuristics(int[][] vertices, String[] colors, String[] states) {
         this.vertices = vertices;
@@ -31,8 +38,7 @@ public class GraphHeuristics {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Graph.InduceEffect) {
-                Graph.InduceEffect pp = (Graph.InduceEffect) obj;
+            if (obj instanceof Graph.InduceEffect pp) {
                 return (pp.effectednode.equals(this.effectednode) && pp.removeddomain == this.removeddomain);
             } else {
                 return false;
@@ -56,11 +62,11 @@ public class GraphHeuristics {
     }
 
     /**
-     * This method returns the neighbours of a state
-     * @param vertex vertex whose neighbours are computed
-     * @return returns the list of neighbours
+     * This method returns the neighbors of a state
+     * @param vertex vertex whose neighbors are computed
+     * @return returns the list of neighbors
      */
-    List<Integer> getNeighbours(int vertex){
+    List<Integer> getneighbors(int vertex){
         List<Integer> list = new ArrayList<>();
 
         for(int i = 0; i < this.vertices[vertex].length; i++){
@@ -102,8 +108,8 @@ public class GraphHeuristics {
         int nextState = -1;
 
         for(int i = 0; i < this.vertices.length; i++){
-            if(colormap[i] == -1 && getNeighbours(i).size() > maxDegree) {
-                maxDegree = getNeighbours(i).size();
+            if(colormap[i] == -1 && getneighbors(i).size() > maxDegree) {
+                maxDegree = getneighbors(i).size();
                 nextState = i;
             }
         }
@@ -124,9 +130,10 @@ public class GraphHeuristics {
             if(colormap[i] != -1)
                 continue;
 
-            for(int j = 0; j < this.vertices.length; j++){
-                if(this.vertices[j][i] == 0)
+            for (int[] vertice : this.vertices) {
+                if (vertice[i] == 0) {
                     temp = temp + 1;
+                }
             }
 
             if(temp > minimum){
@@ -186,8 +193,8 @@ public class GraphHeuristics {
             map.put(states[i], colors[colormap[i]]);
         }
 
-        totalBackTrackCount[0] = noOfBacktracks;
-        noOfBacktracks = 0;
+        totalBackTrackCount[0] = numOfBacktracks;
+        numOfBacktracks = 0;
         return map;
     }
 
@@ -211,7 +218,7 @@ public class GraphHeuristics {
 
             }
 
-            noOfBacktracks++;
+            numOfBacktracks++;
 
         }
 
@@ -239,8 +246,8 @@ public class GraphHeuristics {
             map.put(states[i], colors[colormap[i]]);
         }
 
-        totalBackTrackCount[0] = noOfBacktracks;
-        noOfBacktracks = 0;
+        totalBackTrackCount[0] = numOfBacktracks;
+        numOfBacktracks = 0;
         return map;
     }
 
@@ -256,41 +263,40 @@ public class GraphHeuristics {
         if(level == this.vertices.length)
             return true;
 
+        for (int color : domainmap.get(vertex)) {
+            List<Integer> neighbors = getneighbors(vertex);
+            colormap[vertex] = color;
+            int j;
 
-            for (int color : domainmap.get(vertex)) {
-                List<Integer> neighbours = getNeighbours(vertex);
-                colormap[vertex] = color;
-                int j;
-
-                for (j = 0; j < neighbours.size(); j++) {
-                    if (colormap[neighbours.get(j)] == -1) {
-                        if(removedbyMap.containsKey(new InduceEffect(neighbours.get(j), color)))
-                            continue;
-                        domainmap.get(neighbours.get(j)).remove(Integer.valueOf(color));
-                        removedbyMap.put(new InduceEffect(neighbours.get(j), color), vertex);
-                        if (domainmap.get(neighbours.get(j)).size() == 0)
-                            break;
-                    }
+            for (j = 0; j < neighbors.size(); j++) {
+                if (colormap[neighbors.get(j)] == -1) {
+                    if(removedbyMap.containsKey(new InduceEffect(neighbors.get(j), color)))
+                        continue;
+                    domainmap.get(neighbors.get(j)).remove(Integer.valueOf(color));
+                    removedbyMap.put(new InduceEffect(neighbors.get(j), color), vertex);
+                    if (domainmap.get(neighbors.get(j)).size() == 0)
+                        break;
                 }
-
-                if (j == neighbours.size())
-                    if (forwardCheckingColoringUtil(domainmap, removedbyMap, colormap, getNextState(domainmap, colormap), level + 1))
-                        return true;
-
-                noOfBacktracks++;
-
-                for (int neighbour : neighbours) {
-                    if(colormap[neighbour] == -1) {
-                        if(removedbyMap.get(new InduceEffect(neighbour, color)) != null && removedbyMap.get(new InduceEffect(neighbour, color)) == vertex) {
-                            domainmap.get(neighbour).add(color);
-                            removedbyMap.remove(new InduceEffect(neighbour, color));
-                            Collections.sort(domainmap.get(neighbour));
-                        }
-                    }
-                }
-
-                colormap[vertex] = -1;
             }
+
+            if (j == neighbors.size())
+                if (forwardCheckingColoringUtil(domainmap, removedbyMap, colormap, getNextState(domainmap, colormap), level + 1))
+                    return true;
+
+            numOfBacktracks++;
+
+            for (int neighbour : neighbors) {
+                if(colormap[neighbour] == -1) {
+                    if(removedbyMap.get(new InduceEffect(neighbour, color)) != null && removedbyMap.get(new InduceEffect(neighbour, color)) == vertex) {
+                        domainmap.get(neighbour).add(color);
+                        removedbyMap.remove(new InduceEffect(neighbour, color));
+                        Collections.sort(domainmap.get(neighbour));
+                    }
+                }
+            }
+
+            colormap[vertex] = -1;
+        }
 
         return false;
     }
@@ -315,8 +321,8 @@ public class GraphHeuristics {
             map.put(states[i], colors[colormap[i]]);
         }
 
-        totalBackTrackCount[0] = noOfBacktracks;
-        noOfBacktracks = 0;
+        totalBackTrackCount[0] = numOfBacktracks;
+        numOfBacktracks = 0;
         return map;
     }
 
@@ -331,11 +337,11 @@ public class GraphHeuristics {
     boolean avoidSingleton(int effected, Map<Integer, List<Integer>> domainmap, Set<Integer> singletonVisited, int[] colormap){
 
         int singletonColor = domainmap.get(effected).get(0);
-        List<Integer> neighbours = getNeighbours(effected);
+        List<Integer> neighbors = getneighbors(effected);
 
         singletonVisited.add(effected);
 
-        for(int neighbour : neighbours){
+        for(int neighbour : neighbors){
             if(colormap[neighbour] != -1 && domainmap.get(neighbour).size() == 1 && singletonColor == domainmap.get(neighbour).get(0))
                 return false;
 
@@ -359,11 +365,11 @@ public class GraphHeuristics {
     void undoSingleton(int effected, Map<Integer, List<Integer>> domainmap, Set<Integer> singletonVisited, int[] colormap){
 
         int singletonColor = domainmap.get(effected).get(0);
-        List<Integer> neighbours = getNeighbours(effected);
+        List<Integer> neighbors = getneighbors(effected);
 
         singletonVisited.remove(effected);
 
-        for(int neighbour : neighbours){
+        for(int neighbour : neighbors){
             if(colormap[neighbour] == -1 && singletonVisited.contains(neighbour)) {
                 undoSingleton(neighbour, domainmap, singletonVisited, colormap);
                 domainmap.get(neighbour).add(singletonColor);
@@ -387,12 +393,12 @@ public class GraphHeuristics {
         try {
 
             for (int color : domainmap.get(vertex)) {
-                List<Integer> neighbours  = getNeighbours(vertex);
+                List<Integer> neighbors  = getneighbors(vertex);
                 colormap[vertex] = color;
                 int j;
 
-                for (j = 0; j < neighbours.size(); j++) {
-                    int neighbour = neighbours.get(j);
+                for (j = 0; j < neighbors.size(); j++) {
+                    int neighbour = neighbors.get(j);
                     if (colormap[neighbour] == -1) {
                         if (domainmap.get(neighbour).size() == 1 && domainmap.get(neighbour).get(0) == color)
                             break;
@@ -402,16 +408,16 @@ public class GraphHeuristics {
                     }
                 }
 
-                if (j == neighbours.size()) {
+                if (j == neighbors.size()) {
                     if (forwardCheckingSingletonColoringUtil(domainmap, colormap, singletonVisited, getNextState(domainmap, colormap), level + 1)) {
                         return true;
                     }
                 }
 
-                noOfBacktracks++;
+                numOfBacktracks++;
 
 
-                for (int neighbour : neighbours) {
+                for (int neighbour : neighbors) {
                     if (colormap[neighbour] == -1) {
                         if (domainmap.get(neighbour).size() == 1)
                             undoSingleton(neighbour, domainmap, singletonVisited, colormap);
