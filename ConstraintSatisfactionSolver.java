@@ -57,7 +57,7 @@ public class ConstraintSatisfactionSolver {
 
         if (!heuristicsUsed) {
           // Without heuristics
-          GraphStructure graph = new GraphStructure(stateGraphStructure, colors, states);
+          StructureWithoutHeuristics graph = new StructureWithoutHeuristics(stateGraphStructure, colors, states);
 
           startTime = System.currentTimeMillis();
 
@@ -75,8 +75,8 @@ public class ConstraintSatisfactionSolver {
 
         } else {
           // With heuristics
-          GraphStructureHeuristics graph =
-              new GraphStructureHeuristics(stateGraphStructure, colors, states);
+          StructureWithHeuristics graph =
+              new StructureWithHeuristics(stateGraphStructure, colors, states);
 
           startTime = System.currentTimeMillis();
 

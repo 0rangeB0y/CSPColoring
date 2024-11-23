@@ -9,13 +9,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class GraphStructure {
+public class StructureWithoutHeuristics {
   int[][] nodes;
   String[] colors;
   String[] states;
   int numberOfBacktracks;
 
-  public GraphStructure(int[][] nodes, String[] colors, String[] states) {
+  public StructureWithoutHeuristics(int[][] nodes, String[] colors, String[] states) {
     this.nodes = nodes;
     this.colors = colors;
     this.states = states;
@@ -280,7 +280,7 @@ public class GraphStructure {
 
     @Override
     public boolean equals(Object obj) {
-      if (obj instanceof GraphStructure.InduceEffect pp) {
+      if (obj instanceof StructureWithoutHeuristics.InduceEffect pp) {
         return (pp.effectedNode.equals(this.effectedNode)
             && pp.removedDomain == this.removedDomain);
       } else {
